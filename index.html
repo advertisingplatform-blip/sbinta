@@ -1,24 +1,6 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>sbinta.com</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
-<style>
-:root{--bg:#fff;--ink:#000;--muted:#666;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0b0b;--ink:#fff;--muted:#999}}
-:root[data-theme="dark"]{--bg:#0b0b0b;--ink:#fff;--muted:#999}
-html,body{height:100%;margin:0}
-body{background:var(--bg);color:var(--ink);display:grid;place-items:center;font-family:"Poppins","Segoe UI",Helvetica,Arial,sans-serif;overflow:hidden}
-main{display:flex;flex-direction:column;align-items:center;gap:1.2rem}
-#logo{width:min(58vw,240px);height:auto;cursor:pointer;overflow:visible;-webkit-tap-highlight-color:transparent;outline:none}
-#logo:focus-visible{outline:2px solid var(--ink);outline-offset:8px;border-radius:50%}
-#pulse,#mark,#half{transform-origin:32px 32px}
-#name{margin:0;font-size:clamp(1.6rem,6vw,2.4rem);font-weight:700;letter-spacing:-.5px}
-#name span{font-weight:400;color:var(--muted)}
-</style>
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6QHQ6HB3L9"></script>
 <script>
@@ -28,35 +10,50 @@ main{display:flex;flex-direction:column;align-items:center;gap:1.2rem}
 
   gtag('config', 'G-6QHQ6HB3L9');
 </script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>sbinta.com</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
+<style>
+:root{--bg:#fff;--ink:#000;--gray:#bdbdbd;--muted:#666;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0b0b;--ink:#fff;--gray:#4a4a4a;--muted:#999}}
+:root[data-theme="dark"]{--bg:#0b0b0b;--ink:#fff;--gray:#4a4a4a;--muted:#999}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);display:grid;place-items:center;font-family:"Poppins","Segoe UI",Helvetica,Arial,sans-serif;overflow:hidden}
+main{display:flex;flex-direction:column;align-items:center;gap:1.2rem}
+#logo{width:min(58vw,240px);height:auto;cursor:pointer;overflow:visible;-webkit-tap-highlight-color:transparent;outline:none}
+#logo:focus-visible{outline:2px solid var(--ink);outline-offset:8px;border-radius:50%}
+#pulse,#mark,#half,#disc{transform-origin:32px 32px}
+#name{margin:0;font-size:clamp(1.6rem,6vw,2.4rem);font-weight:700;letter-spacing:-.5px}
+#name span{font-weight:400;color:var(--muted)}
+</style>
 </head>
 <body>
 <main>
   <svg id="logo" viewBox="0 0 64 64" role="button" tabindex="0" aria-label="sbinta.com – click pentru animație">
     <g id="pulse"><g id="mark">
-      <circle id="disc" cx="32" cy="32" r="29" fill="var(--bg)"/>
+      <circle id="disc" cx="32" cy="32" r="29" fill="var(--gray)"/>
       <path id="half" d="M32 3A14.5 14.5 0 0 0 32 32A14.5 14.5 0 0 1 32 61A29 29 0 0 0 32 3Z" fill="var(--ink)"/>
-      <circle id="ring" cx="32" cy="32" r="28.5" fill="none" stroke="var(--ink)" stroke-width="3" pathLength="100" stroke-dasharray="100" transform="rotate(-90 32 32)"/>
     </g></g>
   </svg>
   <h1 id="name">sbinta<span>.com</span></h1>
 </main>
 <script>
 const $=id=>document.getElementById(id);
-const logo=$('logo'),mark=$('mark'),pulse=$('pulse'),ring=$('ring');
+const logo=$('logo'),mark=$('mark'),pulse=$('pulse');
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let busy=true,angle=0;
 
-// 1) Animația de la încărcare: conturul se desenează, apoi jumătatea neagră se rotește în loc, apoi apare numele.
+// 1) Animația de la încărcare: bulina gri apare, apoi jumătatea neagră se rotește în loc, apoi apare numele.
 function intro(){
   if(reduce){busy=false;return}
-  ring.animate([{strokeDashoffset:100},{strokeDashoffset:0}],{duration:900,easing:'cubic-bezier(.65,0,.35,1)',fill:'both'})
-    .finished.then(()=>{ring.style.strokeDasharray='none';ring.getAnimations().forEach(a=>a.cancel())});
-  $('disc').animate([{opacity:0},{opacity:1}],{duration:400,delay:500,fill:'both'});
+  $('disc').animate([{opacity:0,transform:'scale(.5)'},{opacity:1,transform:'scale(1)'}],{duration:600,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'});
   $('half').animate([{transform:'rotate(-180deg) scale(0)',opacity:0},{transform:'rotate(0) scale(1)',opacity:1}],
-    {duration:900,delay:700,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'});
+    {duration:900,delay:350,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'});
   $('name').animate([{opacity:0,transform:'translateY(14px)'},{opacity:1,transform:'none'}],
-    {duration:600,delay:1500,easing:'ease-out',fill:'both'});
-  setTimeout(()=>busy=false,1800);
+    {duration:600,delay:1100,easing:'ease-out',fill:'both'});
+  setTimeout(()=>busy=false,1300);
 }
 
 // 2) Animația la click: sigla se răsucește 180° (jumătățile își schimbă locul), cu o mică „strivire".
