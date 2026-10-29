@@ -11,10 +11,8 @@
   gtag('config', 'G-6QHQ6HB3L9');
 </script>
 <meta charset="utf-8">
-<title>sbinta.com</title>
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/svg+xml" href="/sbinta-icon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>sbinta.com</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
 <style>
@@ -45,7 +43,8 @@ main{display:flex;flex-direction:column;align-items:center;gap:1.2rem}
 const $=id=>document.getElementById(id);
 const logo=$('logo'),mark=$('mark'),pulse=$('pulse');
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-let busy=true,angle=0;
+let busy=true,angle=0,spins=0;
+const DEST='https://sbinta.com/daria/';
 
 // 1) Animația de la încărcare: bulina gri apare, apoi jumătatea neagră se rotește în loc, apoi apare numele.
 function intro(){
@@ -65,7 +64,7 @@ function spin(){
   mark.animate([{transform:`rotate(${from}deg)`},{transform:`rotate(${angle}deg)`}],
     {duration:900,easing:'cubic-bezier(.34,1.4,.64,1)',fill:'forwards'});
   pulse.animate([{transform:'scale(1)'},{transform:'scale(.8)',offset:.35},{transform:'scale(1)'}],{duration:900,easing:'ease-in-out'});
-  setTimeout(()=>busy=false,900);
+  setTimeout(()=>{busy=false;if(++spins===2)location.href=DEST},900);
 }
 logo.addEventListener('click',spin);
 logo.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();spin()}});
