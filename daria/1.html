@@ -86,7 +86,7 @@ input{flex:1;accent-color:var(--ac)}#tm{font-variant-numeric:tabular-nums;font-s
     </g></g>
   
 <g id="hg"></g></svg><div id="cap"></div></div>
-<div id="ct"><button id="pb">⏸ Pauză</button><input id="sl" type="range" min="0" max="2999" value="0" aria-label="Poziție"><span id="tm">0:00 / 0:30</span></div>
+<div id="ct"><button id="pb">⏸ Pauză</button><button id="sb">🔇 Sunet</button><input id="sl" type="range" min="0" max="2999" value="0" aria-label="Poziție"><span id="tm">0:00 / 0:30</span></div>
 <script>
 const NS='http://www.w3.org/2000/svg',$=i=>document.getElementById(i);
 const cl=x=>Math.max(0,Math.min(1,x)),E=x=>{x=cl(x);return x*x*(3-2*x)},B=x=>{x=cl(x);return 1+2.70158*Math.pow(x-1,3)+1.70158*Math.pow(x-1,2)};
@@ -118,8 +118,18 @@ function render(t){
  let c='';for(const[a,x]of CAP)if(t>=a)c=x;$('cap').textContent=c;
 }
 let t=0,play=true,last=performance.now();const sl=$('sl'),pb=$('pb'),tm=$('tm'),f=n=>Math.floor(n/60)+':'+String(Math.floor(n%60)).padStart(2,'0');
-function tick(now){const dt=Math.min(.1,(now-last)/1000);last=now;if(play)t=(t+dt)%30;render(t);sl.value=Math.floor(t*100);tm.textContent=f(t)+' / 0:30';requestAnimationFrame(tick)}
+let AC=null,snd=false,prev=0;const sb=$('sb');
+const tn=(a,b,d,ty='sine',v=.15,dl=0)=>{if(!snd)return;const n=AC.currentTime+dl,o=AC.createOscillator(),g=AC.createGain();o.type=ty;o.frequency.setValueAtTime(a,n);o.frequency.exponentialRampToValueAtTime(b,n+d);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(v,n+.015);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(AC.destination);o.start(n);o.stop(n+d+.05)};
+const pop=()=>tn(700,180,.12,'sine',.2),thud=v=>tn(150,45,.18,'sine',v),tk=()=>tn(2400,1800,.03,'square',.03);
+const meow=()=>{if(!snd)return;const n=AC.currentTime,o=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';f.type='bandpass';f.frequency.value=1400;f.Q.value=2;o.frequency.setValueAtTime(420,n);o.frequency.exponentialRampToValueAtTime(820,n+.22);o.frequency.exponentialRampToValueAtTime(480,n+.6);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.3,n+.06);g.gain.exponentialRampToValueAtTime(.0001,n+.62);o.connect(f);f.connect(g);g.connect(AC.destination);o.start(n);o.stop(n+.65)};
+const ev=[[.5,()=>tn(250,900,.9,'sine',.15)],[2,()=>tn(1000,220,1.2,'triangle',.12)],[2.58,()=>thud(.5)],[3.16,()=>thud(.3)],[3.45,()=>thud(.2)],[3.6,()=>thud(.12)],[4,pop],[4.45,pop],[4.9,pop],[5.35,pop],[6.2,()=>{tn(400,700,.25,'sine',.15);tn(700,900,.2,'sine',.15,.25)}],[8,tk],[11,tk],[14.6,tk],[19.6,tk],[12.2,meow],[22.1,meow],[17.9,()=>{tn(880,880,.6,'sine',.18);tn(1320,1320,.6,'sine',.12,.08)}],[18.3,()=>[660,880,1100,1320].forEach((f,i)=>tn(f,f,.35,'triangle',.1,i*.1))],[20,()=>tn(500,1800,2.5,'sine',.06)],[28.4,()=>[523,659,784,1047].forEach(f=>tn(f,f,1.4,'triangle',.1))]];
+for(let i=0;i<14;i++)ev.push([20.5+i*.52,()=>{const f=[523,587,659,784,880][i%5];tn(f,f*1.01,.5,'sine',.08)}]);
+for(let k=1;k<=8;k++)ev.push([22+k*.748,()=>{thud(.25);tn(300,500,.1,'triangle',.08)}]);
+const BT=.748,ML=[523,659,784,659,880,784,659,523],BS=[131,131,175,196];
+for(let k=0;k<=8;k++)ev.push([22+k*BT,()=>{tn(150,40,.22,'sine',.35);tn(BS[k%4],BS[k%4],.4,'triangle',.2);tn(7000,6000,.04,'square',.02,BT/2);tn(ML[(k*2)%8],ML[(k*2)%8],.25,'square',.05);tn(ML[(k*2+1)%8],ML[(k*2+1)%8],.25,'square',.05,BT/2);if(k%2)tn(1200,1000,.06,'square',.03)}]);
+function tick(now){const dt=Math.min(.1,(now-last)/1000);last=now;if(play)t=(t+dt)%30;render(t);if(play&&t>prev&&t-prev<.3)for(const[a,fn]of ev)if(a>prev&&a<=t)fn();prev=t;sl.value=Math.floor(t*100);tm.textContent=f(t)+' / 0:30';requestAnimationFrame(tick)}
 pb.onclick=()=>{play=!play;pb.textContent=play?'⏸ Pauză':'▶ Redă'};
 sl.oninput=()=>{t=sl.value/100};
+sb.onclick=()=>{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();snd=!snd;if(snd){AC.resume();pop()}sb.textContent=snd?'🔊 Sunet':'🔇 Sunet'};
 requestAnimationFrame(tick);
 </script></body></html>
