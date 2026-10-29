@@ -7,8 +7,7 @@
   gtag('js', new Date());
 
   gtag('config', 'G-6QHQ6HB3L9');
-</script><!DOCTYPE html>
-<html lang="ro">
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Creațiile Dariei</title>
@@ -74,7 +73,8 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: top;
+    object-position: center 50%;
+    transform-origin: center 50%;
     display: block;
     opacity: 0;
     transition: opacity .4s ease;
@@ -116,9 +116,11 @@
      emoji - pictogramă de rezervă dacă nu merge screenshot-ul (opțional)
      image - adresa unei imagini proprii, dacă vrei să înlocuiești
              screenshot-ul automat (opțional)
+     poz   - poziția verticală a miniaturii, 0-100 (opțional)
+     zoom  - mărirea miniaturii, ex. 1.5 (opțional)
    ============================================================ */
 const CREATII = [
-  { url: "https://sbinta.com/daria/1.html",       emoji: "🐱" },
+  { url: "https://sbinta.com/daria/",       emoji: "🐱" },
   { url: "https://sbinta.com/daria/2.html", emoji: "🐶" },
   // { url: "https://sbinta.com/daria/3.html", title: "Titlul nou", emoji: "🌈" },
 ];
@@ -127,11 +129,16 @@ const CREATII = [
 const LATIME = 640;       // lățimea miniaturii în pixeli
 const ASTEPT_SEC = 4;     // câte secunde așteaptă serviciul înainte de captură
                           // (util pentru animații, ca să nu fie pagina goală)
+const POZ_Y = 50;         // poziția verticală a imaginii în card, 0-100
+                          // (0 = se vede partea de sus, 100 = partea de jos;
+                          //  mărește valoarea ca să "ridici" desenul în card)
+const ZOOM = 1.3;         // mărire ca să dispară marginile goale (1 = fără zoom)
+                          // Pe fiecare creație poți pune și { poz: 65, zoom: 1.5 }
 
 /* Serviciul principal: thum.io (gratuit, fără cheie).
    Rezervă: WordPress mshots. */
 function screenshotUrl(url) {
-  return "https://image.thum.io/get/width/" + LATIME + "/crop/" + Math.round(LATIME * 0.75) +
+  return "https://image.thum.io/get/width/" + LATIME +
          "/wait/" + ASTEPT_SEC + "/noanimate/" + url;
 }
 function screenshotRezerva(url) {
@@ -187,6 +194,11 @@ function creeazaCard(item) {
   const img = document.createElement("img");
   img.alt = "";
   img.loading = "lazy";
+  const poz = item.poz != null ? item.poz : POZ_Y;
+  const zoom = item.zoom != null ? item.zoom : ZOOM;
+  img.style.objectPosition = "center " + poz + "%";
+  img.style.transformOrigin = "center " + poz + "%";
+  img.style.transform = "scale(" + zoom + ")";
   let pas = 0;
   const surse = item.image
     ? [item.image, screenshotUrl(item.url), screenshotRezerva(item.url)]
