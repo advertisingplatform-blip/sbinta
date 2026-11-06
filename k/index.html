@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>k</title>
+<style>
+  :root {
+    --bg: #f3f4f1;
+    --surface: #ffffff;
+    --ink: #1c2321;
+    --muted: #6b7571;
+    --line: #c9cfcb;
+    --accent: #1f4d46;
+    --accent-ink: #ffffff;
+    --error: #b3261e;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121715;
+      --surface: #1a211f;
+      --ink: #e6ebe8;
+      --muted: #8a9691;
+      --line: #36413d;
+      --accent: #7cc4b4;
+      --accent-ink: #0d1412;
+      --error: #f2a29b;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.4 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: max(20px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
+  }
+  main { width: 100%; max-width: 380px; }
+  .fields { display: flex; flex-direction: column; gap: 10px; }
+  input {
+    display: block;
+    width: 100%;
+    height: 48px;
+    margin: 0;
+    padding: 0 14px;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 16px;
+    letter-spacing: .04em;
+    outline: none;
+  }
+  input:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  input[aria-invalid="true"] { border-color: var(--error); }
+  .actions { display: flex; gap: 10px; margin-top: 18px; }
+  button {
+    font: inherit;
+    height: 48px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    padding: 0 16px;
+  }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.primary {
+    flex: 1;
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 600;
+  }
+  button:disabled { opacity: .6; cursor: progress; }
+  button.icon { width: 48px; padding: 0; display: grid; place-items: center; }
+  button.icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  #result { margin-top: 18px; display: none; gap: 10px; }
+  #result.show { display: flex; }
+  #out {
+    flex: 1;
+    min-width: 0;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    background: var(--surface);
+    font: 600 17px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    letter-spacing: .02em;
+    overflow-x: auto;
+    white-space: nowrap;
+    user-select: all;
+  }
+  #msg { min-height: 20px; margin: 12px 2px 0; font-size: 14px; color: var(--muted); }
+  #msg.err { color: var(--error); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="fields" id="fields">
+    <input type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore aria-label="Câmpul 1">
+    <input type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore aria-label="Câmpul 2">
+    <input type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore aria-label="Câmpul 3">
+    <input type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore aria-label="Câmpul 4">
+    <input type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore aria-label="Câmpul 5">
+    <input type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore aria-label="Câmpul 6">
+  </div>
+
+  <div class="actions">
+    <button type="button" class="primary" id="go">Generează</button>
+    <button type="button" class="icon" id="eye" aria-label="Arată sau ascunde câmpurile" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+  </div>
+
+  <div id="result">
+    <div id="out" aria-label="Parola generată"></div>
+    <button type="button" class="icon" id="copy" aria-label="Copiază parola">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
+    </button>
+  </div>
+
+  <p id="msg" role="status" aria-live="polite"></p>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  // ---- Parametri (schimbarea oricăruia produce parole diferite) ----
+  const VERSION    = "pwgen/v1";
+  const LENGTH     = 20;
+  const ITERATIONS = 600000;            // PBKDF2-HMAC-SHA-256
+  const SETS = [
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    "abcdefghijklmnopqrstuvwxyz",
+    "0123456789",
+    "!@#$%^&*-_=+?.,;:"
+  ];
+  const ALL = SETS.join("");
+  const REQUIRED = [0, 3, 4, 5];        // indexuri (0-based): câmpurile 1, 4, 5, 6
+  const AUTO_CLEAR_MS = 60000;
+
+  const enc = new TextEncoder();
+  const inputs = [...document.querySelectorAll("#fields input")];
+  const $go = document.getElementById("go");
+  const $eye = document.getElementById("eye");
+  const $copy = document.getElementById("copy");
+  const $out = document.getElementById("out");
+  const $result = document.getElementById("result");
+  const $msg = document.getElementById("msg");
+  let clearTimer = null;
+
+  // ---- Utilitare ----
+  const concat = (...parts) => {
+    const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+    let o = 0;
+    for (const p of parts) { out.set(p, o); o += p.length; }
+    return out;
+  };
+  const u32 = (n) => { const b = new Uint8Array(4); new DataView(b.buffer).setUint32(0, n); return b; };
+  const lp = (s) => { const b = enc.encode(s); return concat(u32(b.length), b); }; // prefix de lungime: fără ambiguități
+
+  function setMsg(text, isErr) {
+    $msg.textContent = text || "";
+    $msg.className = isErr ? "err" : "";
+  }
+
+  function hideResult() {
+    $result.classList.remove("show");
+    $out.textContent = "";
+    clearTimeout(clearTimer);
+  }
+
+  // ---- Generatorul ----
+  async function generate(values) {
+    // Câmpurile 1–5: NFC + eliminarea spațiilor de la capete. Parola principală: doar NFC (exact cum e scrisă).
+    const ids = values.slice(0, 5).map((v) => v.normalize("NFC").trim());
+    const master = values[5].normalize("NFC");
+
+    // Salt = versiune + cele 5 câmpuri, cu prefix de lungime (poziția contează, câmpurile goale contează)
+    const salt = concat(enc.encode(VERSION + "/salt"), ...ids.map(lp));
+
+    // 1) PBKDF2-HMAC-SHA-256 => 256 biți
+    const baseKey = await crypto.subtle.importKey("raw", enc.encode(master), "PBKDF2", false, ["deriveBits"]);
+    const bits = await crypto.subtle.deriveBits(
+      { name: "PBKDF2", hash: "SHA-256", salt, iterations: ITERATIONS }, baseKey, 256);
+
+    // 2) HMAC-SHA-256 în mod contor => flux determinist de octeți
+    const hmacKey = await crypto.subtle.importKey("raw", bits, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    let counter = 0, buf = new Uint8Array(0), pos = 0;
+    const nextByte = async () => {
+      if (pos >= buf.length) {
+        buf = new Uint8Array(await crypto.subtle.sign("HMAC", hmacKey, concat(enc.encode(VERSION + "/stream"), u32(counter++))));
+        pos = 0;
+      }
+      return buf[pos++];
+    };
+    // întreg uniform în [0, n) prin respingere (fără bias de modulo)
+    const randInt = async (n) => {
+      const limit = 256 - (256 % n);
+      for (;;) { const b = await nextByte(); if (b < limit) return b % n; }
+    };
+
+    // 3) Construirea parolei: câte un caracter din fiecare clasă, restul din alfabetul complet
+    const chars = [];
+    for (const set of SETS) chars.push(set[await randInt(set.length)]);
+    while (chars.length < LENGTH) chars.push(ALL[await randInt(ALL.length)]);
+
+    // 4) Amestecare Fisher–Yates cu același flux determinist
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = await randInt(i + 1);
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+    return chars.join("");
+  }
+
+  // ---- Interfață ----
+  async function run() {
+    hideResult();
+    const values = inputs.map((i) => i.value);
+    let missing = false;
+    inputs.forEach((el, idx) => {
+      const bad = REQUIRED.includes(idx) && (idx === 5 ? values[idx].length === 0 : values[idx].trim() === "");
+      el.setAttribute("aria-invalid", bad ? "true" : "false");
+      if (bad) missing = true;
+    });
+    if (missing) {
+      setMsg("Completează câmpurile obligatorii: 1, 4, 5 și 6.", true);
+      inputs.find((el) => el.getAttribute("aria-invalid") === "true").focus();
+      return;
+    }
+    $go.disabled = true;
+    setMsg("Se calculează…");
+    try {
+      const pw = await generate(values);
+      $out.textContent = pw;
+      $result.classList.add("show");
+      setMsg("");
+      clearTimer = setTimeout(() => { hideResult(); setMsg("Parola a fost ștearsă din ecran."); }, AUTO_CLEAR_MS);
+    } catch (e) {
+      setMsg("Browserul nu poate rula Web Crypto aici. Folosește HTTPS sau un browser actual.", true);
+    } finally {
+      $go.disabled = false;
+    }
+  }
+
+  async function copy() {
+    const text = $out.textContent;
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const r = document.createRange();
+      r.selectNodeContents($out);
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      document.execCommand("copy");
+    }
+    setMsg("Parola a fost copiată.");
+  }
+
+  $go.addEventListener("click", run);
+  $copy.addEventListener("click", copy);
+  $eye.addEventListener("click", () => {
+    const show = $eye.getAttribute("aria-pressed") !== "true";
+    $eye.setAttribute("aria-pressed", String(show));
+    inputs.forEach((i) => { i.type = show ? "text" : "password"; });
+  });
+  inputs.forEach((el) => {
+    el.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); run(); } });
+    el.addEventListener("input", () => {
+      el.setAttribute("aria-invalid", "false");
+      hideResult();
+      setMsg("");
+    });
+  });
+})();
+</script>
+</body>
+</html>
